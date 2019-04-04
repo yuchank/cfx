@@ -25,10 +25,15 @@ class AnalysisManager(threading.Thread):
 
         self.machine = machine
 
+    def route_network(self):
+        """Enable network routing if desired."""
+        # Determine the desired routing strategy (none, internet, VPN).
+
     def launch_analysis(self):
         print('start analysis')
         self.acquire_machine()
 
+        # Start the machine
         machinery.start()
 
     def run(self):

@@ -13,7 +13,6 @@ class VirtualBox(Machinery):
             self.options.virtualbox.path, 'startvm', label, '--type', self.options.virtualbox.mode
         ]
         _, err = Popen(
-            args, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            close_fds=True
+            args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True
         ).communicate()
 
