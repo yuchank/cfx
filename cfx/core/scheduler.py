@@ -9,6 +9,7 @@ machinery = None
 class AnalysisManager(threading.Thread):
 
     def __init__(self):
+        threading.Thread.__init__(self)
         self.machine = None
 
     def acquire_machine(self):
@@ -17,11 +18,16 @@ class AnalysisManager(threading.Thread):
 
         # start a loop to acquire the a machine to run the analysis on.
         while True:
-            if not machinery.availables():
+            if not machinery.available():
                 time.sleep(1)
                 continue
 
             machine = machinery.acquire()
+
+            if not machine:
+                pass
+            else:
+                break
 
         self.machine = machine
 
@@ -64,3 +70,6 @@ class Scheduler(object):
 
             analysis = AnalysisManager()
             analysis.start()
+
+
+print('scheduler ***********')

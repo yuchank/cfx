@@ -1,12 +1,26 @@
+from cfx.core.database import Database
+
+
 class Machinery(object):
+
     def __init__(self):
-        print('Machinery init')
+        self.db = Database()
 
     def initialize(self, module_name):
-        pass
+        """Read, load and verify machines configuration.
+        @param module_name: module name.
+        """
+        # Load.
+        self._initialize(module_name)
 
-    def availables(self):
-        return True
+    def _initialize(self, module_name):
+        """Read configuration.
+        @param module_name: module name.
+        """
+
+
+    def available(self):
+        pass
 
     def acquire(self):
         pass
