@@ -3,6 +3,9 @@ import threading
 
 import cfx
 
+from cfx.common.config import Config
+from cfx.core.database import Database
+
 machinery = None
 
 
@@ -11,6 +14,8 @@ class AnalysisManager(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.machine = None
+        self.db = Database()
+        self.task = self.db.view_task(task_id)
 
     def acquire_machine(self):
         print('acquire machine')
@@ -48,15 +53,24 @@ class AnalysisManager(threading.Thread):
 
 
 class Scheduler(object):
+    """Tasks Scheduler.
+
+    This class is responsible for the main execution loop of the tool. """
     def __init__(self):
-        print('Scheduler')
         self.running = True
+        self.cfg = Config()
+        self.db = Database()
 
     def initialize(self):
         global machinery
 
+        machinery_name = self.cfg.cfx.machinery
+
         # Initialize the machine manager.
         machinery = cfx.machinery.plugins['virtualbox']()
+
+        # provide a dictionary with the configuration options to the machine manager instance.
+        machinery.set_options(Config(machinery_name))
 
         machinery.initialize('virtualbox')
 
@@ -70,6 +84,3 @@ class Scheduler(object):
 
             analysis = AnalysisManager()
             analysis.start()
-
-
-print('scheduler ***********')
