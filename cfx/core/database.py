@@ -2,6 +2,7 @@ from cfx.common.config import config
 
 from cfx.common.utils import Singleton
 
+from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 
 
@@ -27,6 +28,18 @@ class Database(object):
         """Connect to the database backend."""
         if not dsn:
             dsn = config('cfx:database:connection')
+        if not dsn:
+            dsn = 'sqlite:///%s' % cwd('cuckoo.db')
+
+        self._connect_database(dsn)
+
+    def _connect_database(self, connection_string):
+        """
+        Connect to a Database.
+        :param connection_string: Connection string specifying the database
+        :return:
+        """
+        self.engine = create_engine(connection_string)
 
     def view_task(self, task_id, details=True):
         """Retrieve information on a task.
