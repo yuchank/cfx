@@ -1,3 +1,5 @@
+import os
+
 from cfx.core.database import Database
 from cfx.core.scheduler import Scheduler
 
@@ -6,8 +8,18 @@ from cfx.misc import (
 )
 
 
+def cfx_create(username=None, cfg=None, quiet=False):
+    pass
+
+
 def cfx_init():
-    print('cfx_init')
+    """
+    Initialize Cuckoo configuration.
+    """
+
+    # It would appear this is the first time CFX is being run (on this CFX Working Directory anyway).
+    if not os.path.isdir(cwd()) or not os.listdir(cwd()):
+        cfx_create(ctx.user, cfg)
 
     Database().connect()
 
@@ -41,4 +53,4 @@ def main(cwd):
 
 
 if __name__ == '__main__':
-    main()
+    main(None)
