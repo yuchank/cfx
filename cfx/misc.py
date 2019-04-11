@@ -2,6 +2,15 @@ import os
 import subprocess
 import sys
 
+try:
+    import pwd
+    HAVE_PWD = True
+except ImportError:
+    HAVE_PWD = False
+
+from cfx.common.exceptions import CFXStartupError
+
+
 # Cuckoo Working Directory base path.
 _root = None
 _raw = None
@@ -39,6 +48,18 @@ def decide_cwd(cwd=None, exists=False):
         cwd = '~/.cfx'
 
     dirpath = os.path.abspath(os.path.expanduser(cwd))
+    if exists:
+        if not os.path.exists(dirpath):
+            raise CFXStartupError(
+                'Unable to start this CFX command as the provided CWD (%r) '
+                'is not present!' % dirpath
+            )
+
+        if not os.path.exists(os.path.join(dirpath, '.cwd')):
+            raise CFXStartupError(
+                'Unable to start this CFX command as the provided CWD (%r) '
+                'is not present!' % dirpath
+            )
 
     set_cwd(dirpath, raw=cwd)
     return dirpath
@@ -56,3 +77,15 @@ def Popen(*args, **kwargs):
             kwargs.pop('close_fds')
 
     return subprocess.Popen(*args, **kwargs)
+
+
+def drop_privileges(username):
+    """
+    Drops privileges to selected user.
+    :param username: drop privileges to this username
+    """
+    if not HAVE_PWD:
+        sys.exit(
+            'Unable to import pwd required for dropping privileges (note that '
+            'privilege dropping is not supported under Windows)!'
+        )

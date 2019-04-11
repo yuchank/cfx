@@ -6,6 +6,7 @@ class Singleton(type):
             cls._instance[cls] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instance[cls]
 
+
 def classlock(f):
     """classlock decorator (created for database.Database).
     Used to put a lock to avoid sqlite errors.
@@ -17,3 +18,9 @@ def classlock(f):
         pass
 
     return inner
+
+
+def exception_message():
+    """
+    Creates a message describing an unhandled exception.
+    """
