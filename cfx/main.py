@@ -1,8 +1,10 @@
 import click
-import jinja2
 import logging
 import os
+import shutil
 import sys
+
+import cfx
 
 from cfx.common.exceptions import CFXCriticalError
 from cfx.common.utils import exception_message
@@ -20,12 +22,37 @@ def cfx_create(username=None, cfg=None, quiet=False):
     """
     Create a new CFX Working Directory
     """
-    if not quiet:
-        print(jinja2.Environment().from_string(
-            open(cwd('cwd', 'init-pre.jinja2', private=True), 'rb').read()
-        ).render(cwd=cwd))
+
+    if not os.path.exists(cwd('.cwd', private=True)):
+        print("The cfx/private/.cwd file is missing. Please run "
+              "'python setup.py sdist' before 'pip install ...'!")
+        return
+
     if not os.path.isdir(cwd()):
         os.mkdir(cwd())
+
+    def _ignore_pyc(src, names):
+        """Don't copy .pyc files."""
+        return [name for name in names if name.endswith('.pyc')]
+
+    # The following effectively nops the first os.makedirs() call that
+    # shutil.copytree() does as we've already created the destination
+    # directory ourselves (assuming it didn't exist already).
+    orig_makedirs = shutil.os.makedirs
+
+    def _ignore_first_makedirs(dst):
+        shutil.os.makedirs = orig_makedirs
+
+    shutil.os.makedirs = _ignore_first_makedirs
+
+    shutil.copytree(os.path.join(cfx.__path__[0], 'data'), cwd(), symlinks=True, ignore=_ignore_pyc)
+
+    # Drop our version of the CWD.
+    # TODO not yet implemented
+    # our_version = open(cwd('.cwd', private=True), 'rb').read()
+    # open(cwd('.cwd'), 'wb').write(our_version)
+
+    # Write the supervisord.conf configuration file.
 
 
 def cfx_init(level, ctx, cfg=None):

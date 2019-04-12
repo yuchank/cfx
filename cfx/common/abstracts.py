@@ -26,7 +26,6 @@ class Machinery(object):
         @param module_name: module name.
         """
 
-
     def available(self):
         pass
 
