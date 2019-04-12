@@ -10,6 +10,14 @@ machinery = None
 
 
 class AnalysisManager(threading.Thread):
+    """
+    Analysis Manager.
+
+    This class handles the full analysis process for a given task. It takes
+    care of selecting the analysis machine, preparing the configuration and
+    interacting with the guest agent and analyzer components to launch and
+    complete the analysis and store, process and report its results.
+    """
 
     def __init__(self):
         threading.Thread.__init__(self)
@@ -55,11 +63,17 @@ class AnalysisManager(threading.Thread):
 class Scheduler(object):
     """Tasks Scheduler.
 
-    This class is responsible for the main execution loop of the tool. """
-    def __init__(self):
+    This class is responsible for the main execution loop of the tool.
+    It prepares the analysis machines and keep waiting and loading for new analysis tasks.
+    Whenever a new task is available, it launches AnalysisManager which will
+    take care of running the full analysis process and operating with the assigned analysis machine.
+    """
+    def __init__(self, maxcount=None):
         self.running = True
         self.cfg = Config()
         self.db = Database()
+        self.maxcount = maxcount
+        self.total_analysis_count = 0
 
     def initialize(self):
         global machinery
@@ -74,13 +88,22 @@ class Scheduler(object):
 
         machinery.initialize('virtualbox')
 
+    def stop(self):
+        """Stop scheduler"""
+        self.running = False
+        # Shutdown machine manager (used to kill machines that still alive).
+        machinery.shutdown()
+
     def start(self):
-        print('scheduler start')
         self.initialize()
 
         while self.running:
             time.sleep(1)   # 1 sec
-            print('scheduler running')
+
+            # Fetch a pending analysis task.
+            task, available = None, False
+            for machine in self.db.get_available_machines():
+                task = self.db.fetch(machine=machine.name)
 
             analysis = AnalysisManager()
             analysis.start()

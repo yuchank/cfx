@@ -49,4 +49,3 @@ def config(s, cfg=None, strict=False, raw=False, loose=False, check=False):
         strict = raw = loose = True
 
     type_ = Config.configuration.get(file_name, {}).get(section, {}).get(key)
-    print(type_)

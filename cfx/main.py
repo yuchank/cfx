@@ -22,11 +22,11 @@ def cfx_create(username=None, cfg=None, quiet=False):
     """
     Create a new CFX Working Directory
     """
-
-    if not os.path.exists(cwd('.cwd', private=True)):
-        print("The cfx/private/.cwd file is missing. Please run "
-              "'python setup.py sdist' before 'pip install ...'!")
-        return
+    # TODO
+    # if not os.path.exists(cwd('.cwd', private=True)):
+    #     print("The cfx/private/.cwd file is missing. Please run "
+    #           "'python setup.py sdist' before 'pip install ...'!")
+    #     return
 
     if not os.path.isdir(cwd()):
         os.mkdir(cwd())
@@ -45,10 +45,11 @@ def cfx_create(username=None, cfg=None, quiet=False):
 
     shutil.os.makedirs = _ignore_first_makedirs
 
-    shutil.copytree(os.path.join(cfx.__path__[0], 'data'), cwd(), symlinks=True, ignore=_ignore_pyc)
+    # TODO
+    # shutil.copytree(os.path.join(cfx.__path__[0], 'data'), cwd(), symlinks=True, ignore=_ignore_pyc)
 
     # Drop our version of the CWD.
-    # TODO not yet implemented
+    # TODO
     # our_version = open(cwd('.cwd', private=True), 'rb').read()
     # open(cwd('.cwd'), 'wb').write(our_version)
 
@@ -61,17 +62,25 @@ def cfx_init(level, ctx, cfg=None):
     """
 
     # It would appear this is the first time CFX is being run (on this CFX Working Directory anyway).
-    if not os.path.isdir(cwd()) or not os.listdir(cwd()):
-        cfx_create(ctx.user, cfg)
-        sys.exit(0)
+    # TODO
+    # if not os.path.isdir(cwd()) or not os.listdir(cwd()):
+    #     cfx_create(ctx.user, cfg)
+    #     sys.exit(0)
 
     Database().connect()
 
 
-def cfx_main():
-    print('cfx_main')
-    scheduler = Scheduler()
-    scheduler.start()
+def cfx_main(max_analysis_count=0):
+    """
+    CFX main loop.
+    :param max_analysis_count: kill cfx after this number of analysis
+    :return:
+    """
+    try:
+        sched = Scheduler(max_analysis_count)
+        sched.start()
+    except KeyboardInterrupt:
+        sched.stop()
 
 
 @click.group(invoke_without_command=True)
